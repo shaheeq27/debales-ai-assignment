@@ -1,164 +1,136 @@
-# Debales AI Assistant — LangGraph Agent
+# 🤖 Debales AI Assistant — LangGraph RAG System
 
-A production-ready AI chatbot that answers questions about **Debales AI** using RAG,
-falls back to live web search (SERP API) for general queries, and routes intelligently
-between both using a **LangGraph** workflow.
+A production-style AI chatbot that answers questions about **Debales AI** using a Retrieval-Augmented Generation (RAG) pipeline, with intelligent routing between internal knowledge and external queries.
 
 ---
 
-## Architecture
+## 🔥 What this project does
 
-```
-User query
-    │
-    ▼
+This system:
+- Answers company-specific questions using a **vector database (FAISS)**
+- Falls back to external search when needed
+- Uses a **LangGraph workflow** to route queries intelligently
+- Runs **fully locally** (no paid APIs required)
+
+---
+
+## 🧠 Architecture Overview
+User Query
+│
+▼
 ┌─────────────┐
-│ Router Node │  (LLM decides: rag | serp | both)
+│ Router Node │  → decides: rag | serp | both
 └──────┬──────┘
-       │
-   ┌───┴────────────┐
-   │                │                │
-   ▼                ▼                ▼
+│
+┌───┴────────────┐
+│                │                │
+▼                ▼                ▼
 RAG Node       SERP Node        Both Node
-(FAISS         (SerpAPI         (RAG + SERP
- retrieval)     search)          combined)
-   │                │                │
-   └────────────────┴────────────────┘
-                    │
-                    ▼
-            ┌──────────────┐
-            │ Answer Node  │  (GPT-4o-mini, grounded in context)
-            └──────────────┘
-                    │
-                    ▼
-              Final answer
-```
+(FAISS)        (Search)         (Combined)
+│                │                │
+└────────────────┴────────────────┘
+│
+▼
+┌──────────────┐
+│ Answer Node  │
+└──────────────┘
+│
+▼
+Final Answer
+---
 
-### Components
+## ⚙️ Tech Stack
 
-| File | Role |
-|------|------|
-| `src/agent.py` | LangGraph graph definition (all nodes + edges) |
-| `scripts/ingest.py` | Website crawler → FAISS vector index builder |
-| `cli.py` | Interactive terminal chat interface |
-| `app.py` | Streamlit web UI |
-
-### Routing logic
-
-| Query type | Route | Source |
-|------------|-------|--------|
-| About Debales AI (products, pricing, integrations, team, blog) | `rag` | FAISS vector store |
-| General / external questions | `serp` | SerpAPI → Google |
-| Mixed queries | `both` | Both sources combined |
+- **LangChain + LangGraph** — workflow orchestration
+- **FAISS** — vector database
+- **Sentence Transformers** — local embeddings
+- **Ollama (LLaMA3)** — local LLM
+- **BeautifulSoup + Requests** — web scraping
+- **Streamlit** — optional web UI
 
 ---
 
-## Setup
-
-### 1. Clone & install
-
-```bash
-git clone <repo-url>
-cd debales-agent
-python -m venv .venv
-source .venv/bin/activate   # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-```
-
-### 2. Environment variables
-
-```bash
-cp .env.example .env
-# Edit .env and add your keys:
-#   OPENAI_API_KEY   – from https://platform.openai.com/api-keys
-#   SERPAPI_API_KEY  – from https://serpapi.com/manage-api-key
-```
-
-### 3. Build the knowledge base
-
-```bash
-python scripts/ingest.py
-```
-
-This crawls Debales AI's website (up to 60 pages), chunks the content, embeds it with
-OpenAI embeddings, and saves a FAISS index to `data/faiss_index/`.
-
-Typical runtime: **2–4 minutes** (depends on site size and OpenAI API latency).
-
----
-
-## Running
-
-### CLI (terminal)
-
-```bash
-python cli.py
-```
-
-### Web UI (Streamlit)
-
-```bash
-streamlit run app.py
-```
-
-Opens at `http://localhost:8501`.
-
----
-
-## Example interactions
-
-```
-You: What is Debales AI?
-→ [Route: rag]  Retrieves from knowledge base.
-
-You: What is the current EUR/USD exchange rate?
-→ [Route: serp] Searches the web and returns live data.
-
-You: How does Debales AI compare to Intercom?
-→ [Route: both] RAG for Debales context + SERP for Intercom info.
-
-You: Who is the CEO of Debales AI?
-→ [Route: rag]  Answers from scraped data; says "I don't know" if not found.
-```
-
----
-
-## Key design decisions
-
-- **No hallucination**: The answer prompt explicitly instructs the LLM to say "I don't
-  know" if context is insufficient. It never fabricates Debales AI facts.
-- **Routing via LLM**: A fast, prompt-based classifier decides the route before any
-  retrieval happens — cheap and accurate.
-- **BFS crawler**: Follows internal links breadth-first so product/blog/integration
-  pages are all captured.
-- **Chunking strategy**: 800-token chunks with 100-token overlap preserve sentence
-  boundaries while keeping retrieval focused.
-- **Multi-turn memory**: Both CLI and UI maintain conversation history (last 10 turns).
-
----
-
-## Project structure
-
-```
-debales-agent/
-├── src/
-│   └── agent.py          # LangGraph workflow (core logic)
-├── scripts/
-│   └── ingest.py         # Scraper + FAISS index builder
-├── data/
-│   └── faiss_index/      # Generated – not committed to git
-├── cli.py                # CLI chat interface
-├── app.py                # Streamlit web UI
+## 📁 Project Structure
+debales-ai-assignment/
+├── agent.py              # LangGraph workflow (core logic)
+├── ingest.py             # Website crawler + FAISS builder
+├── cli.py                # CLI chatbot interface
+├── app.py                # Streamlit UI
 ├── requirements.txt
 ├── .env.example
 └── README.md
-```
 
 ---
 
-## Environment variables reference
+## 🚀 Setup Instructions
 
-| Variable | Description |
-|----------|-------------|
-| `OPENAI_API_KEY` | OpenAI key for GPT-4o-mini + embeddings |
-| `SERPAPI_API_KEY` | SerpAPI key for Google Search |
+### 1. Clone the repository
+```bash
+git clone https://github.com/shaheeq27/debales-ai-assignment.git
+cd debales-ai-assignment
+2. Create virtual environment
+python3 -m venv venv
+source venv/bin/activate
+**3. Install dependencies
+**pip install -r requirements.txt
+pip install sentence-transformers
+**4. Setup environment variables
+**cp .env.example .env
+
+🧱 Build Knowledge Base
+python3 ingest.py
+
+This will:
+* Crawl ~60 pages from Debales AI website
+* Chunk text into embeddings
+* Store vectors in FAIS
+
+🧠 Run Local LLM (Required)
+
+Install Ollama:
+👉 https://ollama.com/download
+
+Then run:ollama run llama3
+💬 Run the chatbot
+
+CLI
+python3 cli.py
+
+⸻
+
+🧪 Example Queries
+
+Try asking:
+
+* What is Debales AI?
+* What industries does Debales AI serve?
+* How does Debales AI help logistics companies?
+* Compare Debales AI with competitors
+
+⸻
+
+💡 Key Features
+
+* 🔍 RAG-based retrieval from real website data
+* 🧠 LLM-based routing (rag / serp / both)
+* ⚡ Local embeddings (no API cost)
+* 🤖 Local LLM via Ollama
+* 💬 Multi-turn conversation support
+
+⸻
+
+⚠️ Notes
+
+* This project avoids paid APIs by using:
+    * HuggingFace embeddings
+    * Ollama (local LLM)
+* Ensure Ollama is running before starting chatbot
+* FAISS index is generated locally and not committed
+
+⸻
+
+📌 Design Decisions
+
+* Avoid hallucination: model is grounded in retrieved context
+* Modular architecture: ingestion, retrieval, generation separated
+* Cost-efficient: fully local execution
