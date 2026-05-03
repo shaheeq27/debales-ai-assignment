@@ -1,4 +1,17 @@
-# 🤖 Debales AI Assistant — LangGraph RAG System
+## 🚀 Overview
+
+This project is an AI-powered assistant built using LangGraph that answers questions about Debales AI using a Retrieval-Augmented Generation (RAG) pipeline.
+
+It combines:
+- FAISS vector database for efficient document retrieval
+- Intelligent routing between internal knowledge and external queries
+- A chatbot interface (CLI and optional Streamlit UI)
+
+To ensure the project runs without paid dependencies, OpenAI APIs were replaced with:
+- HuggingFace sentence-transformer embeddings (local)
+- Ollama (LLaMA3) as the local language model
+
+The system crawls Debales AI’s website, builds a searchable knowledge base, and generates context-aware responses using a modular, production-style architecture.# 🤖 Debales AI Assistant — LangGraph RAG System
 
 A production-style AI chatbot that answers questions about **Debales AI** using a Retrieval-Augmented Generation (RAG) pipeline, with intelligent routing between internal knowledge and external queries.
 
